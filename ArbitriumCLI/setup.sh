@@ -32,12 +32,12 @@ fi
 if ! command -v docker &> /dev/null
 then
     echo "[+] Docker installation ..."
-	apt-get update
-	apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-	apt-get update
-	apt-get install -y docker-ce docker-ce-cli containerd.io
+	apt update
+	apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+	printf '%s\n' "deb https://download.docker.com/linux/debian bullseye stable" | sudo tee /etc/apt/sources.list.d/docker-ce.list
+	curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-ce-archive-keyring.gpg
+    apt update
+	apt install -y docker-ce docker-ce-cli containerd.io
 fi
 
 

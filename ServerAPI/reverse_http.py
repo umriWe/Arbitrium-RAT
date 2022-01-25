@@ -3,7 +3,7 @@ import random, hashlib
 from flask import Flask, Response
 from flask import request
 import requests, json, sys
-import commands, base64, time
+import subprocess, base64, time
 from mimetools import Message
 from StringIO import StringIO
 

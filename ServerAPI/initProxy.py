@@ -1,4 +1,4 @@
-import time, subprocess, commands
+import time, subprocess, subprocess
 
 runningProxies = []
 
@@ -17,7 +17,7 @@ while True:
 			initList.append(i)
 		else:
 			hashedID = i[i.index('-S')+3:].split(' ')[0]
-			if "No Sockets found" in commands.getoutput("screen -ls %s"%hashedID):
+			if "No Sockets found" in subprocess.getoutput("screen -ls %s"%hashedID):
 				initList.append(i)
 	if len(initList):
 		print initList

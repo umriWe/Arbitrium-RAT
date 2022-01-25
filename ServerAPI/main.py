@@ -7,7 +7,7 @@ import json, hashlib
 import base64, requests
 import threading
 from datetime import datetime
-import commands, jwt
+import subprocess, jwt
 
 
 
@@ -325,7 +325,7 @@ def runModule():
 			cmd_exec = "python modules/{}.py {} {}".format(modules_ref[moduleID], deviceuuid, threadid)
 			if argv_ast:
 				cmd_exec += ' {}'.format(customBase64(argv_ast))
-			out_ = commands.getoutput(cmd_exec)
+			out_ = subprocess.getoutput(cmd_exec)
 			return {'message': out_}, 200
 		except KeyError as e:
 			return {'message': "Device not found"}, 404
@@ -345,7 +345,7 @@ def killProxy():
 			if deviceuuid in active_Networks.keys():
 				cmd_exec = "screen -ls %s | grep -E '\s+[0-9]+\.' | awk -F ' ' '{print $1}' | while read s; do screen -XS $s quit; done"%(hashlib.md5(deviceuuid).hexdigest()[:8])
 				del active_Networks[deviceuuid]
-				commands.getoutput(cmd_exec)
+				subprocess.getoutput(cmd_exec)
 				return "Done", 200
 			else:
 

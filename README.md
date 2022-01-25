@@ -1,3 +1,8 @@
+### Contribution
+
+AUTHOR: https://github.com/BenChaliah  The project is dead and the official repository removed. This repo is forked from https://github.com/ToR-0/Arbitrium-RAT
+
+
 ### Disclaimer
 
 This tool was made for educational purposes only. I urge anyone who would use this tool to only use it on targets he/she is authorized to access as a remote control tool. I hold no responsibility if one used it for any unlawful activity.

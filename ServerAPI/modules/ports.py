@@ -1,4 +1,4 @@
-import commands, base64
+import base64
 import re, sys
 import subprocess
 
@@ -17,7 +17,7 @@ def customBase64(encodedTxt, decode=1):
 
 
 
-exeCMD = lambda cmd : commands.getoutput("python modules/runCMD.py {} {} {}".format(customBase64(cmd, -1), sys.argv[1], sys.argv[2])).replace('\n', '')
+exeCMD = lambda cmd : subprocess.getoutput("python modules/runCMD.py {} {} {}".format(customBase64(cmd, -1), sys.argv[1], sys.argv[2])).replace('\n', '')
 
 
 scanPorts = exeCMD('/data/data/net.orange.bolt/elf.out -w 1 -zv {} {} 2> /data/data/net.orange.bolt/netLogs && cat /data/data/net.orange.bolt/netLogs'.format(sys.argv[3], sys.argv[4]))
